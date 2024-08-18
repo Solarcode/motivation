@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Life Expectancy Countdown</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column; /* Arrange items in a column */
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #000; /* Black background */
+            color: #FF69B4; /* Neon pink text */
+            font-family: 'Orbitron', sans-serif; /* Digital-style font */
+            position: relative; /* For positioning the gear icon */
+        }
+
+        @font-face {
+            font-family: 'Orbitron';
+            font-style: normal;
+            font-weight: 400;
+            src: local('Orbitron'), url(https://fonts.gstatic.com/s/orbitron/v10/yMJRMIlzdpvBhQQL_SCzoeLW1Q.ttf) format('truetype');
+        }
+
+        iframe {
+            border: none; /* No outline */
+            margin-bottom: 20px; /* Space between video and countdown */
+            padding: 10px 0; /* 50px padding above and below the video */
+        }
+
+        #countdown {
+            font-size: 3rem;
+            text-shadow: 0 0 10px #FF69B4, 0 0 20px #FF69B4, 0 0 30px #FF69B4; /* Glowing effect */
+        }
+
+        #countdown span {
+            letter-spacing: 0rem; /* No additional spacing around the dot */
+        }
+
+        .quote {
+            margin-bottom: 20px; /* Space between quote and video */
+            font-size: 3rem; /* Same size as countdown */
+            text-align: center;
+            text-transform: uppercase; /* Uppercase text */
+            color: #FF69B4; /* Neon pink text */
+            text-shadow: 0 0 10px #FF69B4, 0 0 20px #FF69B4, 0 0 30px #FF69B4; /* Glowing effect */
+        }
+
+        .bus-warning {
+            margin-top: 10px;
+            font-size: 1.5rem; /* Smaller than the countdown */
+            text-align: center;
+            color: #FF69B4; /* Neon pink text */
+            text-shadow: 0 0 10px #FF69B4, 0 0 20px #FF69B4, 0 0 30px #FF69B4; /* Glowing effect */
+        }
+
+        #progress-bar-container {
+            width: 35%;
+            background-color: #555; /* Dark gray background */
+            border-radius: 20px;
+            margin-top: 20px;
+            margin-bottom: 15px; /* Add 15px of room under the progress bar */
+            overflow: hidden;
+            height: 30px;
+            box-shadow: 0 0 20px #FF69B4; /* Glow around the progress bar container */
+        }
+
+        #progress-bar {
+            height: 100%; /* Height of the progress bar */
+            width: 0%;
+            background-color: #FF69B4; /* Color of the progress bar */
+            border-radius: 25px; /* Smooth edges for the progress bar */
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.7); /* Add a glow to the bar */
+            transition: width 1s ease; /* Smooth transition for width changes */
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: none; /* Hidden by default */
+            text-align: center;
+        }
+
+        .controls label {
+            display: block;
+            margin-bottom: 10px;
+            color: #FF69B4; /* Neon pink text */
+            text-shadow: 0 0 10px #FF69B4, 0 0 20px #FF69B4, 0 0 30px #FF69B4; /* Glowing effect */
+        }
+
+        .controls input {
+            margin-right: 10px;
+            color: #FF69B4; /* Neon pink text */
+            border: 1px solid #FF69B4; /* Pink border */
+        }
+
+        .gear-icon {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+        }
+
+        .gear-icon img {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="quote">Discipline or regret</div>
+
+    <iframe width="854" height="480" src="https://www.youtube.com/embed/wb0xH0z34NE?autoplay=1&controls=0&modestbranding=1" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+    
+    <div id="countdown"></div>
+
+    <div id="progress-bar-container">
+        <div id="progress-bar"></div>
+    </div>
+
+    <div class="bus-warning">You could also get hit by a bus tomorrow...</div>
+
+    <div class="gear-icon" onclick="toggleControls()">
+        <img src="https://img.icons8.com/ios-filled/50/FF69B4/settings.png" alt="Settings" />
+    </div>
+
+    <div class="controls">
+        <label>
+            Birthdate:
+            <input type="date" id="birthdate" />
+        </label>
+        <label>
+            Life Expectancy (years):
+            <input type="number" id="lifeExpectancy" min="0" />
+        </label>
+        <button onclick="updateCountdown()">Update Countdown</button>
+    </div>
+
+    <script>
+        function calculateTimeRemaining(endTime) {
+            const now = new Date().getTime();
+            const timeLeft = endTime - now;
+
+            const seconds = Math.floor((timeLeft / 1000) % 60);
+            const minutes = Math.floor((timeLeft / (1000 * 60)) % 60);
+            const hours = Math.floor((timeLeft / (1000 * 60 * 60)) % 24);
+            const days = Math.floor((timeLeft / (1000 * 60 * 60 * 24)) % 7);
+            const weeks = Math.floor((timeLeft / (1000 * 60 * 60 * 24 * 7)) % 52);
+            const years = Math.floor(timeLeft / (1000 * 60 * 60 * 24 * 365.25));
+
+            return { years, weeks, days, hours, minutes, seconds };
+        }
+
+        function updateCountdown() {
+            const birthdateInput = document.getElementById('birthdate').value;
+            const lifeExpectancyInput = document.getElementById('lifeExpectancy').value;
+
+            if (birthdateInput && lifeExpectancyInput) {
+                localStorage.setItem('birthdate', birthdateInput);
+                localStorage.setItem('lifeExpectancy', lifeExpectancyInput);
+
+                const birthDate = new Date(birthdateInput);
+                const lifeExpectancyInYears = parseInt(lifeExpectancyInput, 10);
+                const endTime = new Date(birthDate);
+                endTime.setFullYear(birthDate.getFullYear() + lifeExpectancyInYears);
+
+                startCountdown(endTime);
+            } else {
+                alert('Please enter both birthdate and life expectancy.');
+            }
+        }
+
+        function startCountdown(endTime) {
+            const countdownElement = document.getElementById('countdown');
+            const progressBar = document.getElementById('progress-bar');
+            const birthdateInput = new Date(document.getElementById('birthdate').value);
+            const lifeExpectancyInYears = parseInt(document.getElementById('lifeExpectancy').value, 10);
+            const totalTime = endTime - birthdateInput.getTime();
+
+            function updateCountdownDisplay() {
+                const time = calculateTimeRemaining(endTime);
+                countdownElement.innerHTML = `
+                    ${time.years.toString().padStart(2, '0').concat(' ')}<span>•</span>
+                    ${time.weeks.toString().padStart(2, '0').concat(' ')}<span>•</span>
+                    ${time.days.toString().padStart(2, '0').concat(' ')}<span>•</span>
+                    ${time.hours.toString().padStart(2, '0').concat(' ')}<span>•</span>
+                    ${time.minutes.toString().padStart(2, '0').concat(' ')}<span>•</span>
+                    ${time.seconds.toString().padStart(2, '0').concat(' ')}
+                `;
+
+                const timeLeft = endTime - new Date().getTime();
+                const progress = 100 - (timeLeft / totalTime) * 100;
+                progressBar.style.width = `${progress}%`;
+            }
+
+            updateCountdownDisplay();
+            setInterval(updateCountdownDisplay, 1000);
+        }
+
+        // Load saved data from localStorage
+        function loadSavedData() {
+            const savedBirthdate = localStorage.getItem('birthdate');
+            const savedLifeExpectancy = localStorage.getItem('lifeExpectancy');
+
+            if (savedBirthdate && savedLifeExpectancy) {
+                document.getElementById('birthdate').value = savedBirthdate;
+                document.getElementById('lifeExpectancy').value = savedLifeExpectancy;
+
+                const birthDate = new Date(savedBirthdate);
+                const lifeExpectancyInYears = parseInt(savedLifeExpectancy, 10);
+                const endTime = new Date(birthDate);
+                endTime.setFullYear(birthDate.getFullYear() + lifeExpectancyInYears);
+
+                startCountdown(endTime);
+            }
+        }
+
+        function toggleControls() {
+            const controls = document.querySelector('.controls');
+            controls.style.display = controls.style.display === 'none' ? 'block' : 'none';
+        }
+
+        window.onload = loadSavedData;
+    </script>
+</body>
+</html>
